@@ -17,6 +17,7 @@ podTemplate(
         }
         container('golang') {
             stage('deploy') {
+                checkout scm
                 sh 'go version'
                 sh 'go build hello.go'
             }
