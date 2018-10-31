@@ -1,26 +1,44 @@
-podTemplate(
-    label: 'kubernetes',
-    containers: [
-        containerTemplate(name: 'maven', image: 'maven:alpine', ttyEnabled: true, command: 'cat'),
-        containerTemplate(name: 'golang', image: 'golang:alpine', ttyEnabled: true, command: 'cat')
-    ]
-) {
-    node('kubernetes') {
+pipeline {
+  agent {
+    kubernetes {
+      label 'mypod'
+      yamlFile 'KubernetesPod.yaml'
+    }
+  }
+  options {
+    buildDiscarder logRotator(numToKeepStr: '5')
+    disableConcurrentBuilds()
+  }
+  environment {
+    domain = "acme.com"
+  }
+  stages {
+    stage('build') {
+      steps {
         container('maven') {
-            stage('build') {
-                sh 'mvn --version'
-                slackSend channel: '#aws', color: 'good', message: 'Slack Message', teamDomain: 'carlymiguel', token: 'SBsVEshhLeHqrQTeuTVgeQtl'
-            }
-            stage('unit-test') {
-                sh 'java -version'
-            }
+          script { currentBuild.displayName = new SimpleDateFormat("yy.MM.dd").format(new Date())+"-${env.BUILD_NUMBER}" }
+          myGlobalFunction("myinput")
+          sh 'echo MAVEN_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR}'
+          sh 'mvn -version'
+          slackSend channel: '#aws', color: 'good', message: 'Slack Message', teamDomain: 'carlymiguel', token: 'SBsVEshhLeHqrQTeuTVgeQtl'
+        }
+        container('busybox') {
+          sh 'echo BUSYBOX_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR}'
+          sh '/bin/busybox'
         }
         container('golang') {
-            stage('deploy') {
-                checkout scm
-                sh 'go version'
-                sh 'go build hello.go'
-            }
+          checkout scm
+          sh 'go version'
+          sh 'go build hello.go'
         }
+      }
     }
+    stage('test') { steps {} }
+    stage('release') { steps {} }
+  }
+  post {
+    failure {
+      echo 'Booo!'
+    }
+  }
 }
