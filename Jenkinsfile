@@ -16,19 +16,14 @@ pipeline {
     stage('build') {
       steps {
         container('maven') {
-          script { currentBuild.displayName = "${env.BUILD_NUMBER}"
-                    }
+          script { currentBuild.displayName = "${env.BUILD_NUMBER}" }
           myGlobalFunction("myinput")
-          sh 'echo MAVEN_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR
-                    }'
+          sh 'echo MAVEN_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR}'
           sh 'mvn -version'
-          slackSend channel: '#aws', color: 'good', message: 'Slack Message', teamDomain: 'carlymiguel', token: 'SBsVEshhLeHqrQTeuTVgeQtl'
-                }
+          slackSend channel: '#aws', color: 'good', message: 'Slack Message', teamDomain: 'carlymiguel', token: 'SBsVEshhLeHqrQTeuTVgeQtl'}
         container('busybox') {
-          sh 'echo BUSYBOX_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR
-                    }'
-          sh '/bin/busybox'
-                }
+          sh 'echo BUSYBOX_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR}'
+          sh '/bin/busybox'}
         container('golang') {
           checkout scm
           sh 'go version'
