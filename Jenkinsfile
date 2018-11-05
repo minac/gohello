@@ -16,7 +16,7 @@ pipeline {
     stage('build') {
       steps {
         container('maven') {
-          script { currentBuild.displayName = new SimpleDateFormat("yy.MM.dd").format(new Date())+"-${env.BUILD_NUMBER}" }
+          script { currentBuild.displayName = "${env.BUILD_NUMBER}" }
           myGlobalFunction("myinput")
           sh 'echo MAVEN_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR}'
           sh 'mvn -version'
