@@ -17,18 +17,16 @@ pipeline {
       steps {
         container('maven') {
           script { currentBuild.displayName = "${env.BUILD_NUMBER}"}
-          sh 'echo MAVEN_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR}'
           sh 'mvn -version'
           slackSend channel: '#aws', color: 'good', message: 'Slack Message', teamDomain: 'carlymiguel', token: 'SBsVEshhLeHqrQTeuTVgeQtl'
         }
         container('busybox') {
-          sh 'echo BUSYBOX_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR}'
-          sh '/bin/busybox'
+          sh '/bin/busybox echo "being busy"'
         }
         container('golang') {
-          checkout scm
-          k8sBuildGolang("hello.go")
+          //checkout scm
           sh 'go version'
+          k8sBuildGolang("hello.go")
         }
       }
     }
