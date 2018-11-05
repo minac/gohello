@@ -27,9 +27,8 @@ pipeline {
         }
         container('golang') {
           checkout scm
-          k8sBuildGolang()
+          k8sBuildGolang("hello.go")
           sh 'go version'
-          sh 'go build hello.go'
         }
       }
     }
