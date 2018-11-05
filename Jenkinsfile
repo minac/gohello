@@ -33,8 +33,8 @@ pipeline {
         }
       }
     }
-    stage('test') { steps {} }
-    stage('release') { steps {} }
+    stage('test') { steps { sh 'echo 'test'' } }
+    stage('release') { steps { sh 'echo 'release'' } }
   }
   post {
     failure {
