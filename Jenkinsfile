@@ -36,14 +36,14 @@ pipeline {
     stage('test') { 
       steps {
         container('busybox') {
-          sh 'echo 'test'
+          sh 'echo "test"'
         }
       }
     }
     stage('release') { 
       steps {
         container('busybox') {
-          sh 'echo 'release'
+          sh 'echo "release"'
         }
       }
     }
