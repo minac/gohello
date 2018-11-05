@@ -17,7 +17,7 @@ pipeline {
       steps {
         container('maven') {
           script { currentBuild.displayName = "${env.BUILD_NUMBER}"}
-          myGlobalFunction("myinput")
+          k8sBuildGolang()
           sh 'echo MAVEN_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR}'
           sh 'mvn -version'
           slackSend channel: '#aws', color: 'good', message: 'Slack Message', teamDomain: 'carlymiguel', token: 'SBsVEshhLeHqrQTeuTVgeQtl'
