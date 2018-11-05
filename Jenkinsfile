@@ -33,8 +33,16 @@ pipeline {
         }
       }
     }
-    stage('test') { steps { sh 'echo 'test'' } }
-    stage('release') { steps { sh 'echo 'release'' } }
+    stage('test') { steps { 
+          container('busybox') {
+          sh 'echo 'test''
+          }
+        }
+    stage('release') { steps { 
+        container('busybox') {
+          sh 'echo 'release''
+          }
+    }
   }
   post {
     failure {
