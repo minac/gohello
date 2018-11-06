@@ -33,8 +33,20 @@ pipeline {
         }
       }
     }
-    stage('test') { steps {} }
-    stage('release') { steps {} }
+    stage('test') {
+      steps {
+        container('busybox') {
+          sh 'node --version'
+          sh 'npm --version'
+          sh 'sbt sbtVersion'
+        }
+      }
+    }
+    stage('release') {
+      steps {
+        echo 'This would release it.'
+      }
+    }
   }
   post {
     failure {
