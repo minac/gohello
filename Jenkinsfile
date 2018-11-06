@@ -20,9 +20,6 @@ pipeline {
           sh 'mvn -version'
           slackSend channel: '#aws', color: 'good', message: 'Slack Message', teamDomain: 'carlymiguel', token: 'SBsVEshhLeHqrQTeuTVgeQtl'
         }
-        container('busybox') {
-          sh '/bin/busybox echo "being busy"'
-        }
         container('golang') {
           //checkout scm
           sh 'go version'
@@ -32,7 +29,7 @@ pipeline {
     }
     stage('test') {
       steps {
-        container('busybox') {
+        container('worker') {
           sh 'node --version'
           sh 'npm --version'
           sh 'sbt sbtVersion'
