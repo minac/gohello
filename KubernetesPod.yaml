@@ -6,10 +6,6 @@ metadata:
     some-label: some-label-value
 spec:
   containers:
-  - name: jnlp
-    env:
-    - name: CONTAINER_ENV_VAR
-      value: jnlp
   - name: busybox
     image: busybox
     command: ["cat"]
