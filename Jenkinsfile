@@ -16,20 +16,31 @@ pipeline {
     stage('build') {
       steps {
         container('maven') {
-          script { currentBuild.displayName = new SimpleDateFormat("yy.MM.dd").format(new Date())+"-${env.BUILD_NUMBER}" }
-          myGlobalFunction("myinput")
-          sh 'echo MAVEN_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR}'
+          script { currentBuild.displayName = "${env.BUILD_NUMBER}"}
           sh 'mvn -version'
           slackSend channel: '#aws', color: 'good', message: 'Slack Message', teamDomain: 'carlymiguel', token: 'SBsVEshhLeHqrQTeuTVgeQtl'
         }
         container('busybox') {
-          sh 'echo BUSYBOX_CONTAINER_ENV_VAR = ${CONTAINER_ENV_VAR}'
-          sh '/bin/busybox'
+          sh '/bin/busybox echo "being busy"'
         }
         container('golang') {
-          checkout scm
+          //checkout scm
           sh 'go version'
-          sh 'go build hello.go'
+          k8sBuildGolang("hello.go")
+        }
+      }
+    }
+    stage('test') {
+      steps {
+        container('busybox') {
+          sh 'echo "test"'
+        }
+      }
+    }
+    stage('release') {
+      steps {
+        container('busybox') {
+          sh 'echo "release"'
         }
       }
     }
