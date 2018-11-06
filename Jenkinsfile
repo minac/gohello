@@ -29,10 +29,8 @@ pipeline {
     }
     stage('test') {
       steps {
-        container('worker') {
-          sh 'node --version'
-          sh 'npm --version'
-          sh 'sbt sbtVersion'
+        container('golang') {
+          checkout scm
         }
       }
     }

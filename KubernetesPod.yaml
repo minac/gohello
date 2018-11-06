@@ -18,7 +18,3 @@ spec:
     image: golang:1.9
     command: ["cat"]
     tty: true
-  - name: worker
-    image: migueldavid/jenkins-worker
-    command: ["cat"]
-    tty: true
