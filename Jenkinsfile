@@ -33,20 +33,6 @@ pipeline {
     stage('test') {
       steps {
         container('busybox') {
-          sh 'echo "test"'
-        }
-      }
-    }
-    stage('release') {
-      steps {
-        container('busybox') {
-          sh 'echo "release"'
-        }
-      }
-    }
-    stage('test') {
-      steps {
-        container('busybox') {
           sh 'node --version'
           sh 'npm --version'
           sh 'sbt sbtVersion'
