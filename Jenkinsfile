@@ -32,6 +32,11 @@ pipeline {
         container('golang') {
           checkout scm
         }
+        container('worker') {
+          sh 'node --version'
+          sh 'npm --version'
+          sh 'sbt sbtVersion'
+        }
       }
     }
     stage('release') {
