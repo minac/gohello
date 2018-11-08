@@ -17,6 +17,7 @@ pipeline {
       steps {
         container('maven') {
           script { currentBuild.displayName = "${env.BUILD_NUMBER}"}
+          sh 'echo ${env.BUILD_NUMBER}'
           sh 'mvn -version'
           slackSend channel: '#aws', color: 'good', message: 'Slack Message', teamDomain: 'carlymiguel', token: 'SBsVEshhLeHqrQTeuTVgeQtl'
         }
