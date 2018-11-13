@@ -17,12 +17,11 @@ pipeline {
     timestamps()
   }
   environment {
-    SLACK_TOKEN = credentials('slack-token')
+    domain = "curiousellie.com"
   }
   stages {
     stage('build') {
       environment {
-        domain = "curiousellie.com"
         repo = "https://github.com/minac/gohello.git"
       }
       steps {
@@ -35,7 +34,6 @@ pipeline {
           k8sBuildGolang("hello.go")
         }
       }
-      when { branch 'master' }
       // when { changeset "**/*.js" }
       // when { changeRequest target: 'master' }
       // when { anyOf { branch 'master'; branch 'staging'; environment name: 'DEPLOY_TO', value: 'production' } }
@@ -56,16 +54,19 @@ pipeline {
       steps {
         echo 'This would release it.'
       }
+      when { branch 'master' }
     }
   }
   post {
     success {
-      slackSend channel: '#aws', color: 'good', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: "${env.SLACK_TOKEN}"
+      slackSend color: "good", message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", channel: "#aws", teamDomain: "carlymiguel", tokenCredentialId: slack-token
       // 'SBsVEshhLeHqrQTeuTVgeQtl'
     }
 
     failure {
-      slackSend channel: '#aws', color: 'gbadood', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: "${env.SLACK_TOKEN}"
+      slackSend color: "danger", message: "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
+
+      slackSend channel: '#aws', color: 'danger', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', tokenCredentialId: slack-token
     }
   }
 }
