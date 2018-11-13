@@ -44,8 +44,8 @@ pipeline {
           checkout scm
         }
         container('worker') {
-          sh '"$(which node)" --version'
-          sh '"$(which npm)" --version'
+          sh 'node --version'
+          sh 'npm --version'
           sh 'sbt sbtVersion'
         }
       }
@@ -54,17 +54,17 @@ pipeline {
       steps {
         echo 'This would release it.'
       }
-      when { branch 'staging' }
+      when { branch 'master' }
     }
   }
   post {
     success {
-      slackSend color: "good", message: "Build Completed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", channel: "#aws", teamDomain: "carlymiguel", tokenCredentialId: slack-token
+      slackSend color: "good", message: "Build Completed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", channel: "#aws", teamDomain: "carlymiguel", tokenCredentialId: "slack-token"
       // 'SBsVEshhLeHqrQTeuTVgeQtl'
     }
 
     failure {
-      slackSend color: "danger", message: "Build Failed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", channel: "#aws", teamDomain: "carlymiguel", tokenCredentialId: slack-token
+      slackSend color: "danger", message: "Build Failed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", channel: "#aws", teamDomain: "carlymiguel", tokenCredentialId: "slack-token"
     }
   }
 }
