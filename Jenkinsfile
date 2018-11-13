@@ -17,19 +17,17 @@ pipeline {
     timestamps()
   }
   environment {
-    domain = "curiousellie.com"
-    repo = "https://github.com/minac/gohello.git"
+    SLACK_TOKEN = credentials('slack-token')
   }
   stages {
     stage('build') {
       environment {
-        SLACK_TOKEN = credentials('slack-token')
+        domain = "curiousellie.com"
+        repo = "https://github.com/minac/gohello.git"
       }
       steps {
         container('maven') {
           sh 'mvn -version'
-          slackSend channel: '#aws', color: 'good', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: "${env.SLACK_TOKEN}"
-          // 'SBsVEshhLeHqrQTeuTVgeQtl'
         }
         container('golang') {
           //checkout scm
@@ -63,10 +61,11 @@ pipeline {
   post {
     success {
       slackSend channel: '#aws', color: 'good', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: "${env.SLACK_TOKEN}"
+      // 'SBsVEshhLeHqrQTeuTVgeQtl'
     }
 
     failure {
-      slackSend channel: '#aws', color: 'good', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: "${env.SLACK_TOKEN}"
+      slackSend channel: '#aws', color: 'gbadood', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: "${env.SLACK_TOKEN}"
     }
   }
 }
