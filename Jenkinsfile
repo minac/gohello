@@ -6,6 +6,7 @@ pipeline {
     kubernetes {
       label 'mypod'
       yamlFile 'KubernetesPod.yaml'
+      idleMinutes 10
     }
   }
   options {
@@ -26,10 +27,8 @@ pipeline {
       }
       steps {
         container('maven') {
-          script { currentBuild.displayName = "${env.BUILD_NUMBER}"}
-          sh 'echo ${env.BUILD_NUMBER}'
           sh 'mvn -version'
-          slackSend channel: '#aws', color: 'good', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: SLACK_TOKEN
+          slackSend channel: '#aws', color: 'good', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: ${env.SLACK_TOKEN}
           // 'SBsVEshhLeHqrQTeuTVgeQtl'
         }
         container('golang') {
@@ -63,11 +62,11 @@ pipeline {
   }
   post {
     success {
-      slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+      slackSend channel: '#aws', color: 'good', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: ${env.SLACK_TOKEN}
     }
 
     failure {
-      slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+      slackSend channel: '#aws', color: 'good', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: ${env.SLACK_TOKEN}
     }
   }
 }
