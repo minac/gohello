@@ -1,3 +1,6 @@
+#!groovy
+import java.text.SimpleDateFormat
+
 pipeline {
   agent {
     kubernetes {
@@ -8,18 +11,26 @@ pipeline {
   options {
     buildDiscarder logRotator(numToKeepStr: '5')
     disableConcurrentBuilds()
+    retry(2)
+    timeout(time: 2, unit: 'HOURS')
+    timestamps()
   }
   environment {
-    domain = "acme.com"
+    domain = "curiousellie.com"
+    repo = "https://github.com/minac/gohello.git"
   }
   stages {
     stage('build') {
+      environment {
+        SLACK_TOKEN = credentials('slack-token')
+      }
       steps {
         container('maven') {
           script { currentBuild.displayName = "${env.BUILD_NUMBER}"}
           sh 'echo ${env.BUILD_NUMBER}'
           sh 'mvn -version'
-          slackSend channel: '#aws', color: 'good', message: 'Slack Message', teamDomain: 'carlymiguel', token: 'SBsVEshhLeHqrQTeuTVgeQtl'
+          slackSend channel: '#aws', color: 'good', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: SLACK_TOKEN
+          // 'SBsVEshhLeHqrQTeuTVgeQtl'
         }
         container('golang') {
           //checkout scm
@@ -27,6 +38,10 @@ pipeline {
           k8sBuildGolang("hello.go")
         }
       }
+      when { branch 'master' }
+      // when { changeset "**/*.js" }
+      // when { changeRequest target: 'master' }
+      // when { anyOf { branch 'master'; branch 'staging'; environment name: 'DEPLOY_TO', value: 'production' } }
     }
     stage('test') {
       steps {
@@ -47,8 +62,12 @@ pipeline {
     }
   }
   post {
+    success {
+      slackSend (color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    }
+
     failure {
-      echo 'Booo!'
+      slackSend (color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
     }
   }
 }
