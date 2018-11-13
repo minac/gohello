@@ -28,7 +28,7 @@ pipeline {
       steps {
         container('maven') {
           sh 'mvn -version'
-          slackSend channel: '#aws', color: 'good', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: ${env.SLACK_TOKEN}
+          slackSend channel: '#aws', color: 'good', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: "${env.SLACK_TOKEN}"
           // 'SBsVEshhLeHqrQTeuTVgeQtl'
         }
         container('golang') {
@@ -62,11 +62,11 @@ pipeline {
   }
   post {
     success {
-      slackSend channel: '#aws', color: 'good', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: ${env.SLACK_TOKEN}
+      slackSend channel: '#aws', color: 'good', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: "${env.SLACK_TOKEN}"
     }
 
     failure {
-      slackSend channel: '#aws', color: 'good', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: ${env.SLACK_TOKEN}
+      slackSend channel: '#aws', color: 'good', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})", teamDomain: 'carlymiguel', token: "${env.SLACK_TOKEN}"
     }
   }
 }
