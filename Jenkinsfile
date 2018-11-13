@@ -54,7 +54,7 @@ pipeline {
       steps {
         echo 'This would release it.'
       }
-      when { branch 'master' }
+      when { branch 'staging' }
     }
   }
   post {
