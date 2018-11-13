@@ -3,7 +3,6 @@ kind: Pod
 metadata:
   name: jenkins-worker
   namespace: default
-  serviceAccount: jenkins
   labels:
     app: jenkins
 spec:
