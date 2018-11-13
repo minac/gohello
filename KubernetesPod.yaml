@@ -1,9 +1,11 @@
-
 apiVersion: v1
 kind: Pod
 metadata:
+  name: jenkins-worker
+  namespace: default
+  serviceAccount: jenkins
   labels:
-    some-label: some-label-value
+    app: jenkins
 spec:
   containers:
   - name: busybox
