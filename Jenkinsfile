@@ -59,7 +59,7 @@ pipeline {
             container('golang') {
               //checkout scm
               sh 'go version'
-              k8sBuildGolang("hello.go")
+              k8sBuildGolang("hello")
             }
           }
           // when { changeset "**/*.js" }
