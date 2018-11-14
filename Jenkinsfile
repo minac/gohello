@@ -45,26 +45,56 @@ pipeline {
       environment {
         repo = "https://github.com/minac/gohello.git"
       }
-      steps {
-        container('maven') {
-          sh 'mvn -version'
+     failFast true
+      parallel {
+        stage('build-frontend') {
+          environment {
+            foo = "bar"
+          }
+          steps {
+            echo "running build frontend..."
+            container('maven') {
+              sh 'mvn -version'
+            }
+            container('golang') {
+              //checkout scm
+              sh 'go version'
+              k8sBuildGolang("hello.go")
+            }
+          }
+          // when { changeset "**/*.js" }
+          // when { changeRequest target: 'master' }
+          // when { anyOf { branch 'master' ; branch 'staging'; environment name: 'DEPLOY_TO', value: 'production' } }
         }
-        container('golang') {
-          //checkout scm
-          sh 'go version'
-          k8sBuildGolang("hello.go")
+        stage('build-backend') {
+          environment {
+            foo = "bar"
+          }
+          steps {
+            echo "running build backend..."
+          }
         }
       }
-      // when { changeset "**/*.js" }
-      // when { changeRequest target: 'master' }
-      // when { anyOf { branch 'master'; branch 'staging'; environment name: 'DEPLOY_TO', value: 'production' } }
     }
     stage('unit-tests') {
-      environment {
-        foo = "bar"
-      }
-      steps {
-        echo "running unit tests..."
+      failFast true
+      parallel {
+        stage('unit-tests-frontend') {
+          environment {
+            foo = "bar"
+          }
+          steps {
+            echo "running unit tests frontend..."
+          }
+        }
+        stage('unit-tests-backend') {
+          environment {
+            foo = "bar"
+          }
+          steps {
+            echo "running unit tests backend..."
+          }
+        }
       }
     }
     stage('end-to-end-tests') {
