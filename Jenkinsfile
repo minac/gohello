@@ -20,6 +20,27 @@ pipeline {
     domain = "curiousellie.com"
   }
   stages {
+    stage('lint-dependency-security') {
+      failFast true
+      parallel {
+        stage('lint') {
+          environment {
+            foo = "bar"
+          }
+          steps {
+            echo "linting..."
+          }
+        }
+        stage('dependencies') {
+          environment {
+            foo = "bar"
+          }
+          steps {
+            echo "running dependency checks, security checks and getting missing ones..."
+          }
+        }
+      }
+    }
     stage('build') {
       environment {
         repo = "https://github.com/minac/gohello.git"
@@ -38,11 +59,17 @@ pipeline {
       // when { changeRequest target: 'master' }
       // when { anyOf { branch 'master'; branch 'staging'; environment name: 'DEPLOY_TO', value: 'production' } }
     }
-    stage('test') {
+    stage('unit-tests') {
+      environment {
+        foo = "bar"
+      }
       steps {
-        container('golang') {
-          checkout scm
-        }
+        echo "running unit tests..."
+      }
+    }
+    stage('end-to-end-tests') {
+      steps {
+        echo 'running end to end tests...'
         container('worker') {
           sh 'node --version'
           sh 'npm --version'
@@ -50,9 +77,9 @@ pipeline {
         }
       }
     }
-    stage('release') {
+    stage('deploy') {
       steps {
-        echo 'This would release it.'
+        echo 'running deployment/release...'
       }
       when { branch 'master' }
     }
