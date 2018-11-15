@@ -20,7 +20,7 @@ pipeline {
     domain = "curiousellie.com"
   }
   stages {
-    stage('lint-dependency-security') {
+    stage('static-analysis-checkstyle-linting-code-coverage') {
       failFast true
       parallel {
         stage('lint') {
@@ -28,15 +28,15 @@ pipeline {
             foo = "bar"
           }
           steps {
-            echo "linting..."
+            echo "static-analysis-checkstyle-linting-code-coverage Sonarqube?..."
           }
         }
-        stage('dependencies') {
+        stage('dependencies-security-checks') {
           environment {
             foo = "bar"
           }
           steps {
-            echo "running dependency checks, security checks and getting missing ones..."
+            echo "running dependency checks with npm audit, security checks and getting missing ones..."
           }
         }
       }
@@ -97,9 +97,9 @@ pipeline {
         }
       }
     }
-    stage('end-to-end-tests') {
+    stage('end-to-end-and-performance-tests') {
       steps {
-        echo 'running end to end tests...'
+        echo 'running end to end and performance tests...'
         container('worker') {
           sh 'node --version'
           sh 'npm --version'
@@ -109,18 +109,19 @@ pipeline {
     }
     stage('deploy') {
       steps {
-        echo 'running deployment/release...'
+        echo 'running deployment or creating release on github...'
       }
       when { branch 'master' }
     }
   }
   post {
     success {
-      slackSend color: "good", message: "Build Completed <@miguel> - ${env.BUILD_TAG} ${env.GIT_COMMIT} ${env.GIT_URL} ${env.GIT_BRANCH} (<${env.BUILD_URL}|Open>) blue ocean (<${env.RUN_DISPLAY_URL}|Open>) ", channel: "#aws", teamDomain: "carlymiguel", tokenCredentialId: "slack-token"
+      slackSend color: "good", message: "Build Completed <@miguel> - ${env.BUILD_TAG} ${env.GIT_COMMIT} ${env.GIT_URL} ${env.GIT_BRANCH} traditional (<${env.BUILD_URL}|Open>) blue ocean (<${env.RUN_DISPLAY_URL}|Open>) ", channel: "#aws", teamDomain: "carlymiguel", tokenCredentialId: "slack-token"
     }
 
     failure {
       slackSend color: "danger", message: "Build Failed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", channel: "#aws", teamDomain: "carlymiguel", tokenCredentialId: "slack-token"
+      echo "creating JIRA issue for this..."
     }
   }
 }
