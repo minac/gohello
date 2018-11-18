@@ -29,15 +29,16 @@ pipeline {
           }
           steps {
             echo "static-analysis-checkstyle-linting-code-coverage Sonarqube?..."
-            try {
-              echo "Linting ember..."
-              sh "npm run clean"
-              sh "npm run init"
-              sh "npm run lint:jenkins"
-            }
-            finally {
-              sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
-            }
+              try {
+                echo "Linting ember..."
+                sh "npm run clean"
+                sh "npm run init"
+                sh "npm run lint:jenkins"
+              }
+              catch { echo "doing nothing here" }
+              finally {
+                sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
+              }
           }
         }
         stage('dependencies-security-checks') {
@@ -105,14 +106,14 @@ pipeline {
           }
           steps {
             echo "running build backend..."
-            try {
-              echo "Compile scala code"
-              sh "sbt ${SBT_OPTS} test:compile"
+            echo "Compile scala code"
+            sh "sbt ${SBT_OPTS} test:compile"
 
-              echo "Package application. For what?"
-              sh "sbt ${SBT_OPTS} stage"
-            }
-            finally {
+            echo "Package application. For what?"
+            sh "sbt ${SBT_OPTS} stage"
+          }
+          post {
+            always {
               echo "Cleanup generated artifacts (sbt target folder, node_modules) so they don't occupy space. Needed?"
               sh "sbt ${SBT_OPTS} clean"
             }
