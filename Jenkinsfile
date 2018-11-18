@@ -32,6 +32,8 @@ pipeline {
               echo "static-analysis-checkstyle-linting-code-coverage Sonarqube?..."
               echo "Linting ember..."
               sh """
+                pwd
+                cd /home/jenkins/workspace/gohello2_master
                 npm run clean
                 npm run init
                 npm run lint:jenkins
@@ -42,7 +44,8 @@ pipeline {
             always {
               container('worker') {
                 echo "Generating checkstyle pattern"
-                sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
+                recordIssues enabledForFailure: true, tools: [[pattern: 'target/test/checkstyle/eslint-*.xml', tool: [$class: 'CheckStyle']]]
+                #sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
               }
             }
           }
