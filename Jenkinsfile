@@ -28,16 +28,20 @@ pipeline {
             foo = "bar"
           }
           steps {
-            echo "static-analysis-checkstyle-linting-code-coverage Sonarqube?..."
-            echo "Linting ember..."
-            sh "npm run clean"
-            sh "npm run init"
-            sh "npm run lint:jenkins"
+            container('worker') {
+              echo "static-analysis-checkstyle-linting-code-coverage Sonarqube?..."
+              echo "Linting ember..."
+              sh "npm run clean"
+              sh "npm run init"
+              sh "npm run lint:jenkins"
+            }
           }
           post {
             always {
-              echo "Generating checkstyle pattern"
-              sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
+              container('worker') {
+                echo "Generating checkstyle pattern"
+                sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
+              }
             }
           }
         }
@@ -62,34 +66,33 @@ pipeline {
             foo = "bar"
           }
           steps {
-            echo "running build frontend..."
-            echo "Building Cockpit..."
-            sh "cd embercli/cockpitapp"
-            sh "npm run build:production"
-            sh "cd ../.."
+            container('worker') {
+              echo "running build frontend..."
+              echo "Building Cockpit..."
+              sh "cd embercli/cockpitapp"
+              sh "npm run build:production"
+              sh "cd ../.."
 
-            echo "Building Explore..."
-            sh "cd embercli/explore"
-            sh "npm run build:production"
-            sh "cd ../.."
+              echo "Building Explore..."
+              sh "cd embercli/explore"
+              sh "npm run build:production"
+              sh "cd ../.."
 
-            echo "Building Planner..."
-            sh "cd embercli/planner"
-            sh "npm run build:production"
-            sh "cd ../.."
+              echo "Building Planner..."
+              sh "cd embercli/planner"
+              sh "npm run build:production"
+              sh "cd ../.."
 
-            echo "Build admin and platform..."
-            sh "cd etc/release/jsOptimization"
-            echo "############################################################# "
-            echo "./build.sh -n --all"
-            echo "############################################################# "
+              echo "Build admin and platform..."
+              sh "cd etc/release/jsOptimization"
+              echo "############################################################# "
+              echo "./build.sh -n --all"
+              echo "############################################################# "
 
-            echo "Cleanup..."
-            sh "npm run clean"
-
-            container('maven') {
-              sh 'mvn -version'
+              echo "Cleanup..."
+              sh "npm run clean"
             }
+
             container('golang') {
               //checkout scm
               sh 'go version'
@@ -105,17 +108,21 @@ pipeline {
             foo = "bar"
           }
           steps {
-            echo "running build backend..."
-            echo "Compile scala code"
-            sh "sbt ${SBT_OPTS} test:compile"
+            container('worker') {
+              echo "running build backend..."
+              echo "Compile scala code"
+              sh "sbt ${SBT_OPTS} test:compile"
 
-            echo "Package application. For what?"
-            sh "sbt ${SBT_OPTS} stage"
+              echo "Package application. For what?"
+              sh "sbt ${SBT_OPTS} stage"
+            }
           }
           post {
             always {
-              echo "Cleanup generated artifacts (sbt target folder, node_modules) so they don't occupy space. Needed?"
-              sh "sbt ${SBT_OPTS} clean"
+              container('worker') {
+                echo "Cleanup generated artifacts (sbt target folder, node_modules) so they don't occupy space. Needed?"
+                sh "sbt ${SBT_OPTS} clean"
+              }
             }
           }
         }
