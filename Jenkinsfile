@@ -29,16 +29,16 @@ pipeline {
           }
           steps {
             echo "static-analysis-checkstyle-linting-code-coverage Sonarqube?..."
-              try {
-                echo "Linting ember..."
-                sh "npm run clean"
-                sh "npm run init"
-                sh "npm run lint:jenkins"
-              }
-              catch { echo "doing nothing here" }
-              finally {
-                sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
-              }
+            echo "Linting ember..."
+            sh "npm run clean"
+            sh "npm run init"
+            sh "npm run lint:jenkins"
+          }
+          post {
+            always {
+              echo "Generating checkstyle pattern"
+              sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
+            }
           }
         }
         stage('dependencies-security-checks') {
