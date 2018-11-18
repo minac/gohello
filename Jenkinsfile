@@ -29,6 +29,15 @@ pipeline {
           }
           steps {
             echo "static-analysis-checkstyle-linting-code-coverage Sonarqube?..."
+            try {
+              echo "Linting ember..."
+              npm run clean
+              npm run init
+              npm run lint:jenkins
+            }
+            finally {
+              checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'
+            }
           }
         }
         stage('dependencies-security-checks') {
@@ -53,6 +62,30 @@ pipeline {
           }
           steps {
             echo "running build frontend..."
+            echo "Building Cockpit..."
+            cd embercli/cockpitapp
+            npm run build:production
+            cd ../..
+
+            echo "Building Explore..."
+            cd embercli/explore
+            npm run build:production
+            cd ../..
+
+            echo "Building Planner..."
+            cd embercli/planner
+            npm run build:production
+            cd ../..
+
+            echo "Build admin and platform..."
+            cd etc/release/jsOptimization
+            #############################################################
+            ./build.sh -n --all
+            #############################################################
+
+            echo "Cleanup..."
+            npm run clean
+
             container('maven') {
               sh 'mvn -version'
             }
@@ -72,6 +105,17 @@ pipeline {
           }
           steps {
             echo "running build backend..."
+            try {
+              echo "Compile scala code"
+              sbt ${SBT_OPTS} test:compile
+
+              echo "Package application. For what?"
+              sbt ${SBT_OPTS} stage
+            }
+            finally {
+              echo "Cleanup generated artifacts (sbt target folder, node_modules) so they don't occupy space. Needed?"
+              sh "sbt ${SBT_OPTS} clean"
+            }
           }
         }
       }
@@ -103,7 +147,7 @@ pipeline {
         container('worker') {
           sh 'node --version'
           sh 'npm --version'
-          sh 'sbt sbtVersion'
+          sh 'sbt ${SBT_OPTS} sbtVersion'
         }
       }
     }
