@@ -31,9 +31,11 @@ pipeline {
             container('worker') {
               echo "static-analysis-checkstyle-linting-code-coverage Sonarqube?..."
               echo "Linting ember..."
-              sh "npm run clean"
-              sh "npm run init"
-              sh "npm run lint:jenkins"
+              sh """
+                npm run clean
+                npm run init
+                npm run lint:jenkins
+              """
             }
           }
           post {
@@ -69,19 +71,25 @@ pipeline {
             container('worker') {
               echo "running build frontend..."
               echo "Building Cockpit..."
-              sh "cd embercli/cockpitapp"
-              sh "npm run build:production"
-              sh "cd ../.."
+              sh """
+                cd embercli/cockpitapp
+                npm run build:production
+                cd ../..
+              """
 
               echo "Building Explore..."
-              sh "cd embercli/explore"
-              sh "npm run build:production"
-              sh "cd ../.."
+              sh """
+                cd embercli/explore
+                npm run build:production
+                cd ../..
+              """
 
               echo "Building Planner..."
-              sh "cd embercli/planner"
-              sh "npm run build:production"
-              sh "cd ../.."
+              sh """
+                cd embercli/planner
+                npm run build:production
+                cd ../..
+              """
 
               echo "Build admin and platform..."
               sh "cd etc/release/jsOptimization"
@@ -153,9 +161,11 @@ pipeline {
       steps {
         echo 'running end to end and performance tests...'
         container('worker') {
-          sh 'node --version'
-          sh 'npm --version'
-          sh 'sbt ${SBT_OPTS} sbtVersion'
+          sh """
+            node --version
+            npm --version
+            sbt ${SBT_OPTS} sbtVersion
+          """
         }
       }
     }
