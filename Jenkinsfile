@@ -31,12 +31,12 @@ pipeline {
             echo "static-analysis-checkstyle-linting-code-coverage Sonarqube?..."
             try {
               echo "Linting ember..."
-              npm run clean
-              npm run init
-              npm run lint:jenkins
+              sh "npm run clean"
+              sh "npm run init"
+              sh "npm run lint:jenkins"
             }
             finally {
-              checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'
+              sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
             }
           }
         }
@@ -63,28 +63,28 @@ pipeline {
           steps {
             echo "running build frontend..."
             echo "Building Cockpit..."
-            cd embercli/cockpitapp
-            npm run build:production
-            cd ../..
+            sh "cd embercli/cockpitapp"
+            sh "npm run build:production"
+            sh "cd ../.."
 
             echo "Building Explore..."
-            cd embercli/explore
-            npm run build:production
-            cd ../..
+            sh "cd embercli/explore"
+            sh "npm run build:production"
+            sh "cd ../.."
 
             echo "Building Planner..."
-            cd embercli/planner
-            npm run build:production
-            cd ../..
+            sh "cd embercli/planner"
+            sh "npm run build:production"
+            sh "cd ../.."
 
             echo "Build admin and platform..."
-            cd etc/release/jsOptimization
+            sh "cd etc/release/jsOptimization"
             echo "############################################################# "
-            ./build.sh -n --all
+            echo "./build.sh -n --all"
             echo "############################################################# "
 
             echo "Cleanup..."
-            npm run clean
+            sh "npm run clean"
 
             container('maven') {
               sh 'mvn -version'
@@ -107,10 +107,10 @@ pipeline {
             echo "running build backend..."
             try {
               echo "Compile scala code"
-              sbt ${SBT_OPTS} test:compile
+              sh "sbt ${SBT_OPTS} test:compile"
 
               echo "Package application. For what?"
-              sbt ${SBT_OPTS} stage
+              sh "sbt ${SBT_OPTS} stage"
             }
             finally {
               echo "Cleanup generated artifacts (sbt target folder, node_modules) so they don't occupy space. Needed?"
