@@ -45,7 +45,7 @@ pipeline {
               container('worker') {
                 echo "Generating checkstyle pattern"
                 recordIssues enabledForFailure: true, tools: [[pattern: 'target/test/checkstyle/eslint-*.xml', tool: [$class: 'CheckStyle']]]
-                #sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
+                //sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
               }
             }
           }
