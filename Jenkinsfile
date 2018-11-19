@@ -20,7 +20,7 @@ pipeline {
     domain = "curiousellie.com"
   }
   stages {
-    stage('static-analysis-checkstyle-linting-code-coverage') {
+    stage('setup') {
       failFast true
       parallel {
         stage('lint') {
@@ -32,20 +32,32 @@ pipeline {
               echo "static-analysis-checkstyle-linting-code-coverage Sonarqube?..."
               echo "Linting ember..."
               sh """
-                pwd
-                cd /home/jenkins/workspace/gohello2_master
+                STARTTIME=$(date -u +%s)
+
+                echo "this next line will probably not be required because the containers are always fresh"
                 npm run clean
-                npm run init
-                npm run lint:jenkins
+                #is this necessary after clean? npm run init
+                mkdir -p target/test/checkstyle/
+                npm run lint
+
+                ENDTIME=$((date -u +%s))
+                echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
               """
             }
           }
           post {
             always {
               container('worker') {
-                echo "Generating checkstyle pattern"
-                recordIssues enabledForFailure: true, tools: [[pattern: 'target/test/checkstyle/eslint-*.xml', tool: [$class: 'CheckStyle']]]
-                // sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
+                sh """
+                  STARTTIME=$(date -u +%s)
+
+                  echo "Creating reports from linting..."
+                  recordIssues enabledForFailure: true, tools: [[pattern: 'target/test/checkstyle/eslint-*.xml', tool: [$class: 'CheckStyle']]]
+                  # sh "checkstyle pattern: 'target/test/checkstyle/eslint-*.xml'"
+
+                  ENDTIME=$((date -u +%s))
+                  echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
+                """
               }
             }
           }
@@ -75,33 +87,63 @@ pipeline {
               echo "running build frontend..."
               echo "Building Cockpit..."
               sh """
+                STARTTIME=$(date -u +%s)
+
                 cd embercli/cockpitapp
                 npm run build:production
                 cd ../..
+
+                ENDTIME=$((date -u +%s))
+                echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
               """
 
               echo "Building Explore..."
               sh """
+                STARTTIME=$(date -u +%s)
+
                 cd embercli/explore
                 npm run build:production
                 cd ../..
+
+                ENDTIME=$((date -u +%s))
+                echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
               """
 
               echo "Building Planner..."
               sh """
+                STARTTIME=$(date -u +%s)
+
                 cd embercli/planner
                 npm run build:production
                 cd ../..
+
+                ENDTIME=$((date -u +%s))
+                echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
               """
 
               echo "Build admin and platform..."
-              sh "cd etc/release/jsOptimization"
-              echo "############################################################# "
-              echo "./build.sh -n --all"
-              echo "############################################################# "
+              sh """
+                STARTTIME=$(date -u +%s)
 
-              echo "Cleanup..."
-              sh "npm run clean"
+                cd etc/release/jsOptimization
+
+                echo "Minimizing platform JS scripts ..."
+                start_time_platform=`date +%s`
+                r.js -o optimizationSettings-platform.js
+                cp -v build/platform/main.js ../../../public/javascripts/platform/nezasa-platform.min.js
+                echo component run time: $(expr `date +%s` - $start_time_platform) s
+
+                echo "Minimizing admin JS scripts ..."
+                start_time_admin=`date +%s`
+                r.js -o optimizationSettings-admin.js
+                cp -v build/admin/main.js ../../../public/javascripts/admin/nezasa-admin.min.js
+                echo component run time: $(expr `date +%s` - $start_time_admin) s
+
+                cd -
+
+                ENDTIME=$((date -u +%s))
+                echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
+              """
             }
 
             container('golang') {
@@ -120,19 +162,38 @@ pipeline {
           }
           steps {
             container('worker') {
-              echo "running build backend..."
-              echo "Compile scala code"
-              sh "sbt ${SBT_OPTS} test:compile"
+              sh """
+                STARTTIME=$(date -u +%s)
+                echo "running build backend..."
 
-              echo "Package application. For what?"
-              sh "sbt ${SBT_OPTS} stage"
+                echo "Compile scala code"
+                // not needed because test:compile does both
+                //sbt ${SBT_OPTS} compile"
+                sbt ${SBT_OPTS} test:compile
+
+                echo "Package application. For what?"
+                sbt ${SBT_OPTS} stage
+
+                ENDTIME=$((date -u +%s))
+                echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
+              """
             }
           }
           post {
             always {
               container('worker') {
-                echo "Cleanup generated artifacts (sbt target folder, node_modules) so they don't occupy space. Needed?"
-                sh "sbt ${SBT_OPTS} clean"
+                sh """
+                  STARTTIME=$(date -u +%s)
+
+                  echo "Cleanup NPM..."
+                  npm run clean
+
+                  echo "Cleanup generated artifacts (sbt target folder, node_modules) so they don't occupy space."
+                  sbt ${SBT_OPTS} clean
+
+                  ENDTIME=$((date -u +%s))
+                  echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
+                """
               }
             }
           }
@@ -165,9 +226,14 @@ pipeline {
         echo 'running end to end and performance tests...'
         container('worker') {
           sh """
+            STARTTIME=$(date -u +%s)
+
             node --version
             npm --version
             sbt ${SBT_OPTS} sbtVersion
+
+            ENDTIME=$((date -u +%s))
+            echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
           """
         }
       }
