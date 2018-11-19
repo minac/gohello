@@ -85,6 +85,7 @@ pipeline {
           steps {
             container('worker') {
               echo "running build frontend..."
+<<<<<<< HEAD
               echo "Building Cockpit..."
               sh """
                 STARTTIME=$(date -u +%s)
@@ -132,6 +133,8 @@ pipeline {
                 r.js -o optimizationSettings-platform.js
                 cp -v build/platform/main.js ../../../public/javascripts/platform/nezasa-platform.min.js
                 echo component run time: $(expr `date +%s` - $start_time_platform) s
+=======
+>>>>>>> a323751df177e2dee5e748d1a9926dd8818d3d30
 
                 echo "Minimizing admin JS scripts ..."
                 start_time_admin=`date +%s`
