@@ -73,32 +73,6 @@ pipeline {
           steps {
             container('worker') {
               echo "running build frontend..."
-              echo "Building Cockpit..."
-              sh """
-                cd embercli/cockpitapp
-                npm run build:production
-                cd ../..
-              """
-
-              echo "Building Explore..."
-              sh """
-                cd embercli/explore
-                npm run build:production
-                cd ../..
-              """
-
-              echo "Building Planner..."
-              sh """
-                cd embercli/planner
-                npm run build:production
-                cd ../..
-              """
-
-              echo "Build admin and platform..."
-              sh "cd etc/release/jsOptimization"
-              echo "############################################################# "
-              echo "./build.sh -n --all"
-              echo "############################################################# "
 
               echo "Cleanup..."
               sh "npm run clean"
