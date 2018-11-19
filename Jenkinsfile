@@ -85,68 +85,6 @@ pipeline {
           steps {
             container('worker') {
               echo "running build frontend..."
-<<<<<<< HEAD
-              echo "Building Cockpit..."
-              sh """
-                STARTTIME=$(date -u +%s)
-
-                cd embercli/cockpitapp
-                npm run build:production
-                cd ../..
-
-                ENDTIME=$((date -u +%s))
-                echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
-              """
-
-              echo "Building Explore..."
-              sh """
-                STARTTIME=$(date -u +%s)
-
-                cd embercli/explore
-                npm run build:production
-                cd ../..
-
-                ENDTIME=$((date -u +%s))
-                echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
-              """
-
-              echo "Building Planner..."
-              sh """
-                STARTTIME=$(date -u +%s)
-
-                cd embercli/planner
-                npm run build:production
-                cd ../..
-
-                ENDTIME=$((date -u +%s))
-                echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
-              """
-
-              echo "Build admin and platform..."
-              sh """
-                STARTTIME=$(date -u +%s)
-
-                cd etc/release/jsOptimization
-
-                echo "Minimizing platform JS scripts ..."
-                start_time_platform=`date +%s`
-                r.js -o optimizationSettings-platform.js
-                cp -v build/platform/main.js ../../../public/javascripts/platform/nezasa-platform.min.js
-                echo component run time: $(expr `date +%s` - $start_time_platform) s
-=======
->>>>>>> a323751df177e2dee5e748d1a9926dd8818d3d30
-
-                echo "Minimizing admin JS scripts ..."
-                start_time_admin=`date +%s`
-                r.js -o optimizationSettings-admin.js
-                cp -v build/admin/main.js ../../../public/javascripts/admin/nezasa-admin.min.js
-                echo component run time: $(expr `date +%s` - $start_time_admin) s
-
-                cd -
-
-                ENDTIME=$((date -u +%s))
-                echo "Task finished in $(($ENDTIME - $STARTTIME)) seconds."
-              """
             }
 
             container('golang') {
